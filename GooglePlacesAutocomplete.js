@@ -132,7 +132,7 @@ const GooglePlacesAutocomplete = React.createClass({
       fetchDetails: false,
       autoFocus: false,
       autoFillOnNotFound: false,
-      keyboardShouldPersistTaps: 'always',
+      keyboardShouldPersistTaps: true,
       getDefaultValue: () => '',
       timeout: 20000,
       onTimeout: () => console.warn('google places autocomplete: request timeout'),
