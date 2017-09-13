@@ -256,6 +256,16 @@ const GooglePlacesAutocomplete = React.createClass({
     if (this.refs.textInput) this.refs.textInput.blur();
   },
 
+  /**
+   * This method is exposed to parent components to blur textInput manually.
+   * @public
+   */
+  triggerClear() {
+    if (!this.refs.textInput) return;
+    this.setAddressText('');
+    this._handleChangeText('');
+  }
+
   getCurrentLocation() {
     let options = null;
 
