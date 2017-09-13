@@ -264,7 +264,7 @@ const GooglePlacesAutocomplete = React.createClass({
     if (!this.refs.textInput) return;
     this.setAddressText('');
     this._handleChangeText('');
-  }
+  },
 
   getCurrentLocation() {
     let options = null;
