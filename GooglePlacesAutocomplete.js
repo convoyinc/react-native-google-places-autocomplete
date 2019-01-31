@@ -129,21 +129,8 @@ export default class GooglePlacesAutocomplete extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let listViewDisplayed = true;
-
-    if (nextProps.listViewDisplayed !== 'auto') {
-      listViewDisplayed = nextProps.listViewDisplayed;
-    }
-
-    if (typeof (nextProps.text) !== "undefined" && this.state.text !== nextProps.text) {
-      this.setState({
-          listViewDisplayed: listViewDisplayed
-        },
-        this._handleChangeText(nextProps.text));
-    } else {
-      this.setState({
-        listViewDisplayed: listViewDisplayed
-      });
+    if (nextProps.text !== undefined && this.state.text !== nextProps.text) {
+      this._handleChangeText(nextProps.text)
     }
   }
 
@@ -516,10 +503,8 @@ export default class GooglePlacesAutocomplete extends Component {
   _onChangeText = (text) => {
     this._request(text);
 
-    this.setState({
-      text: text,
-      listViewDisplayed: this._isMounted || this.props.autoFocus,
-    });
+    this.setState({ text });
+    this._setListViewDisplayed(this._isMounted || this.props.autoFocus);
   }
 
   _handleChangeText = (text) => {
@@ -531,6 +516,16 @@ export default class GooglePlacesAutocomplete extends Component {
 
     if (onChangeText) {
       onChangeText(text);
+    }
+  }
+
+  _setListViewDisplayed(isDisplayed) {
+    if (this.state.listViewDisplayed === isDisplayed) return;
+
+    this.setState({ listViewDisplayed: isDisplayed });
+
+    if (typeof this.props.onListViewDisplayed === "function") {
+      this.props.onListViewDisplayed(isDisplayed);
     }
   }
 
@@ -614,13 +609,12 @@ export default class GooglePlacesAutocomplete extends Component {
 
   _onBlur = () => {
     this.triggerBlur();
-
-    this.setState({
-      listViewDisplayed: false
-    });
+    this._setListViewDisplayed(false);
   }
 
-  _onFocus = () => this.setState({ listViewDisplayed: true })
+  _onFocus = () => {
+    this._setListViewDisplayed(true);
+  }
 
   _renderPoweredLogo = () => {
     if (!this._shouldShowPoweredLogo()) {
