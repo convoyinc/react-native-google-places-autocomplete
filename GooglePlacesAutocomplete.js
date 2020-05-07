@@ -180,6 +180,16 @@ export default class GooglePlacesAutocomplete extends Component {
     if (this.refs.textInput) this.refs.textInput.blur();
   }
 
+  /**
+   * This method is exposed to parent components to blur textInput manually.
+   * @public
+   */
+  triggerClear() {
+    if (!this.refs.textInput) return;
+    this.setAddressText('');
+    this._handleChangeText('');
+  }
+
   getCurrentLocation = () => {
     let options = {
       enableHighAccuracy: false,
@@ -678,30 +688,36 @@ export default class GooglePlacesAutocomplete extends Component {
     }
   }
 
-  _getFlatList = () => {
-    const keyGenerator = () => (
-      Math.random().toString(36).substr(2, 10)
-    );
+  _getContent = () => {
+    const hasText = this.state.text !== '' || this.props.predefinedPlaces.length || this.props.currentLocation === true;
+    const hasRowData = this.state.dataSource.length > 0;
 
-    if ((this.state.text !== '' || this.props.predefinedPlaces.length || this.props.currentLocation === true) && this.state.listViewDisplayed === true) {
-      return (
-        <FlatList
-          scrollEnabled={!this.props.disableScroll}
-          style={[this.props.suppressDefaultStyles ? {} : defaultStyles.listView, this.props.styles.listView]}
-          data={this.state.dataSource}
-          keyExtractor={keyGenerator}
-          extraData={[this.state.dataSource, this.props]}
-          ItemSeparatorComponent={this._renderSeparator}
-          renderItem={({ item }) => this._renderRow(item)}
-          ListHeaderComponent={this.props.renderHeaderComponent && this.props.renderHeaderComponent(this.state.text)}
-          ListFooterComponent={this._renderPoweredLogo}
-          {...this.props}
-        />
-      );
+    if (hasText && hasRowData && this.state.listViewDisplayed) {
+      return this._getFlatList();
+    } else {
+      return this.props.children;
     }
+  };
 
-    return null;
-  }
+  _getFlatList = () => {
+    const keyGenerator = () => Math.random().toString(36).substr(2, 10);
+
+    return (
+      <FlatList
+        scrollEnabled={!this.props.disableScroll}
+        style={[this.props.suppressDefaultStyles ? {} : defaultStyles.listView, this.props.styles.listView]}
+        data={this.state.dataSource}
+        keyExtractor={keyGenerator}
+        extraData={[this.state.dataSource, this.props]}
+        ItemSeparatorComponent={this._renderSeparator}
+        renderItem={({ item }) => this._renderRow(item)}
+        ListHeaderComponent={this.props.renderHeaderComponent && this.props.renderHeaderComponent(this.state.text)}
+        ListFooterComponent={this._renderPoweredLogo}
+        {...this.props}
+      />
+    );
+  };
+
   render() {
     let {
       onFocus,
@@ -743,8 +759,7 @@ export default class GooglePlacesAutocomplete extends Component {
             {this._renderRightButton()}
           </View>
         }
-        {this._getFlatList()}
-        {this.props.children}
+        {this._getContent()}
       </View>
     );
   }
